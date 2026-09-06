@@ -1,0 +1,47 @@
+name: carlog-tests
+
+services:
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: carlog_test
+      POSTGRES_USER: carlog
+      POSTGRES_PASSWORD: carlog
+    tmpfs:
+      - /var/lib/postgresql/data
+    volumes:
+      - ./migrations/000001_create_cars.up.sql:/docker-entrypoint-initdb.d/001_schema.sql:ro
+      - ./migrations/000002_add_make_model_details.up.sql:/docker-entrypoint-initdb.d/002_make_model_details.sql:ro
+      - ./tests/integration/fixtures/database.sql:/docker-entrypoint-initdb.d/100_test_data.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U carlog -d carlog_test"]
+      interval: 2s
+      timeout: 2s
+      retries: 15
+
+  api:
+    build: .
+    environment:
+      HTTP_ADDR: ":8080"
+      DATABASE_URL: "postgres://carlog:carlog@postgres:5432/carlog_test?sslmode=disable"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:8080/health"]
+      interval: 2s
+      timeout: 2s
+      retries: 15
+
+  integration-tests:
+    build:
+      context: .
+      dockerfile: tests/integration/Dockerfile
+    environment:
+      CARLOG_API_URL: "http://api:8080"
+      PYTHONDONTWRITEBYTECODE: "1"
+    volumes:
+      - ./tests/integration:/tests
+    depends_on:
+      api:
+        condition: service_healthy

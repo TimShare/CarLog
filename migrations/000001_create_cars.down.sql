@@ -1,0 +1,7 @@
+BEGIN;
+
+DROP TABLE IF EXISTS cars;
+DROP TABLE IF EXISTS car_models;
+DROP TABLE IF EXISTS car_makes;
+
+COMMIT;

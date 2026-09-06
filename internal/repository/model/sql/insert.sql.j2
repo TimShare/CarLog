@@ -1,0 +1,5 @@
+INSERT INTO car_models (make_id, name)
+VALUES ($1, $2)
+ON CONFLICT (make_id, lower(name)) DO UPDATE
+SET name = car_models.name
+RETURNING id, make_id, name, production_start_year, production_end_year

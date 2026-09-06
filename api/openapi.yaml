@@ -1,0 +1,200 @@
+openapi: 3.1.0
+
+info:
+  title: CarLog API
+  version: 0.1.0
+  description: HTTP API личного журнала обслуживания автомобиля.
+
+servers:
+  - url: http://localhost:8080
+    description: Локальное окружение
+
+tags:
+  - name: System
+    description: Состояние приложения и его зависимостей.
+  - name: Cars
+    description: Автомобили пользователя.
+
+paths:
+  /ping:
+    get:
+      tags:
+        - System
+      summary: Проверить работу HTTP-сервера
+      description: Проверяет только то, что процесс приложения запущен и принимает HTTP-запросы.
+      operationId: ping
+      responses:
+        "200":
+          description: HTTP-сервер работает.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PingResponse"
+              example:
+                message: pong
+  /health:
+    get:
+      tags:
+        - System
+      summary: Проверить состояние приложения
+      description: Проверяет, что HTTP-сервер работает и PostgreSQL доступен.
+      operationId: healthCheck
+      responses:
+        "200":
+          description: Приложение и PostgreSQL доступны.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthResponse"
+              example:
+                status: ok
+        "503":
+          description: PostgreSQL недоступен или не ответил вовремя.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthResponse"
+              example:
+                status: unhealthy
+  /cars:
+    post:
+      tags:
+        - Cars
+      summary: Добавить автомобиль
+      description: Создаёт производителя и модель, если их ещё нет, затем добавляет автомобиль.
+      operationId: createCar
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateCarRequest"
+            example:
+              make: Toyota
+              model: Camry
+              vin: JTNB11HK5K3000001
+              year: 2019
+              current_mileage: 145000
+      responses:
+        "201":
+          description: Автомобиль создан.
+          headers:
+            Location:
+              description: Путь к созданному автомобилю.
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Car"
+        "400":
+          description: Некорректный JSON или значения полей.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "409":
+          description: Автомобиль с таким VIN уже существует.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Внутренняя ошибка сервера.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+components:
+  schemas:
+    CreateCarRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - make
+        - model
+        - year
+        - current_mileage
+      properties:
+        make:
+          type: string
+          minLength: 1
+        model:
+          type: string
+          minLength: 1
+        vin:
+          type:
+            - string
+            - "null"
+          minLength: 1
+          maxLength: 17
+        year:
+          type: integer
+          minimum: 1886
+          maximum: 2100
+        current_mileage:
+          type: integer
+          minimum: 0
+    Car:
+      type: object
+      additionalProperties: false
+      required:
+        - id
+        - make
+        - model
+        - vin
+        - year
+        - current_mileage
+        - created_at
+        - updated_at
+      properties:
+        id:
+          type: integer
+          format: int64
+        make:
+          type: string
+        model:
+          type: string
+        vin:
+          type:
+            - string
+            - "null"
+        year:
+          type: integer
+        current_mileage:
+          type: integer
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+    ErrorResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - error
+      properties:
+        error:
+          type: string
+    PingResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - message
+      properties:
+        message:
+          type: string
+          const: pong
+    HealthResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - status
+      properties:
+        status:
+          type: string
+          enum:
+            - ok
+            - unhealthy

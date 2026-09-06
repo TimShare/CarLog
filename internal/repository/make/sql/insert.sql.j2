@@ -1,0 +1,5 @@
+INSERT INTO car_makes (name)
+VALUES ($1)
+ON CONFLICT (lower(name)) DO UPDATE
+SET name = car_makes.name
+RETURNING id, name, country_code, logo_url

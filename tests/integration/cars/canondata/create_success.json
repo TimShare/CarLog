@@ -1,0 +1,16 @@
+{
+  "body": {
+    "created_at": "<TIMESTAMP>",
+    "current_mileage": 42000,
+    "id": "<ID>",
+    "make": "Integration Make 918d8ae55174",
+    "model": "Integration Model 918d8ae55174",
+    "updated_at": "<TIMESTAMP>",
+    "vin": "TEST918D8AE55174",
+    "year": 2022
+  },
+  "headers": {
+    "Location": "/cars/<ID>"
+  },
+  "status_code": 201
+}

@@ -1,0 +1,6 @@
+{
+  "body": {
+    "error": "make is required"
+  },
+  "status_code": 400
+}

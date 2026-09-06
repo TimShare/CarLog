@@ -1,0 +1,24 @@
+{
+  "duplicate": {
+    "body": {
+      "error": "car with this VIN already exists"
+    },
+    "status_code": 409
+  },
+  "first": {
+    "body": {
+      "created_at": "<TIMESTAMP>",
+      "current_mileage": 42000,
+      "id": "<ID>",
+      "make": "Integration Make c143dd6f7def",
+      "model": "Integration Model c143dd6f7def",
+      "updated_at": "<TIMESTAMP>",
+      "vin": "TESTC143DD6F7DEF",
+      "year": 2022
+    },
+    "headers": {
+      "Location": "/cars/<ID>"
+    },
+    "status_code": 201
+  }
+}

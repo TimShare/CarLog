@@ -1,0 +1,8 @@
+INSERT INTO cars (model_id, vin, year, current_mileage)
+VALUES (
+    $1,
+    {% if has_vin %}$2{% else %}NULL{% endif %},
+    {% if has_vin %}$3{% else %}$2{% endif %},
+    {% if has_vin %}$4{% else %}$3{% endif %}
+)
+RETURNING id, vin, year, current_mileage, created_at, updated_at
