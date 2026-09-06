@@ -1,0 +1,10 @@
+components:
+  schemas:
+    ErrorResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - error
+      properties:
+        error:
+          type: string

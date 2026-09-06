@@ -1,0 +1,64 @@
+paths:
+  /ping:
+    get:
+      tags:
+        - System
+      summary: Проверить работу HTTP-сервера
+      description: Проверяет только то, что процесс приложения запущен и принимает HTTP-запросы.
+      operationId: ping
+      responses:
+        "200":
+          description: HTTP-сервер работает.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PingResponse"
+              example:
+                message: pong
+  /health:
+    get:
+      tags:
+        - System
+      summary: Проверить состояние приложения
+      description: Проверяет, что HTTP-сервер работает и PostgreSQL доступен.
+      operationId: healthCheck
+      responses:
+        "200":
+          description: Приложение и PostgreSQL доступны.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthResponse"
+              example:
+                status: ok
+        "503":
+          description: PostgreSQL недоступен или не ответил вовремя.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthResponse"
+              example:
+                status: unhealthy
+
+components:
+  schemas:
+    PingResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - message
+      properties:
+        message:
+          type: string
+          const: pong
+    HealthResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - status
+      properties:
+        status:
+          type: string
+          enum:
+            - ok
+            - unhealthy
